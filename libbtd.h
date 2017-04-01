@@ -6,6 +6,9 @@
 #include <stdarg.h>
 #include <stdbool.h>
 
+//Commands
+int btd_connect(struct addrinfo *ai);
+
 //Connection
 struct addrinfo *btd_get_addrinfo(char *address);
 void btd_free_addrinfo(struct addrinfo *ai);

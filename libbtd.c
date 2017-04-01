@@ -12,6 +12,35 @@
 #define BTD_MAX_LOG 2
 #define BTD_MIN_LOG 0
 
+//Commands
+int btd_connect(struct addrinfo *ai)
+{
+	int socket_fd;
+	btd_log(2, "Registering socket\n");
+	for (struct addrinfo *r = ai; r != NULL; r=r->ai_next){
+		char *t = pprint_address(r);
+		btd_log(0, "Trying to connect to: %s\n", t);
+		free(t);
+
+		socket_fd = socket(r->ai_family, r->ai_socktype, r->ai_protocol);
+
+		if (socket_fd < 0){
+			perror("socket");
+		} else {
+			btd_log(2, "Registered socket\n");
+			if(connect(socket_fd, r->ai_addr, r->ai_addrlen) != 0){
+				perror("connect");
+			} else {
+				btd_log(2, "Connected to socket\n");
+				return socket_fd;
+			}
+		}
+	}
+	btd_log(0, "Couldn't connect to any socket...\n");
+	return -1;
+}
+
+//Connection
 struct addrinfo *create_unixsocket(char *path)
 {
 	struct addrinfo *sock;
