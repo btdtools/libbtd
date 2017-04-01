@@ -87,6 +87,12 @@ struct addrinfo *btd_get_addrinfo(char *address)
 	return sock;
 }
 
+void btd_free_addrinfo(struct addrinfo *ai)
+{
+	if (ai->ai_family == AF_UNIX)
+		free(ai->ai_addr);
+	freeaddrinfo(ai);
+}
 
 char *pprint_address(struct addrinfo *ai)
 {

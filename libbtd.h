@@ -8,6 +8,7 @@
 
 //Connection
 struct addrinfo *btd_get_addrinfo(char *address);
+void btd_free_addrinfo(struct addrinfo *ai);
 char *pprint_address(struct addrinfo *ai);
 
 //Misc
