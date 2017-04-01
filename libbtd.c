@@ -1,8 +1,10 @@
 #include <arpa/inet.h>
 #include <glob.h>
 #include <netdb.h>
+#include <errno.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <limits.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/un.h>
@@ -13,6 +15,20 @@
 #define BTD_MIN_LOG 0
 
 //Commands
+char *read_line(FILE *fd)
+{
+	int bufsize = 32;
+	int read = 0;
+	char *buf = safe_calloc(bufsize, 1);
+	safe_fgets(bufsize-read, buf, fd);
+	while(buf[strlen(buf)-1] != '\n'){
+		read += strlen(buf);
+		safe_realloc(fd, bufsize*=2);
+		safe_fgets(bufsize-read, buf, fd);
+	}
+	return buf;
+}
+
 FILE *btd_connect(struct addrinfo *ai)
 {
 	int socket_fd;
@@ -43,6 +59,47 @@ FILE *btd_connect(struct addrinfo *ai)
 	}
 	btd_log(0, "Couldn't connect to any socket...\n");
 	return NULL;
+}
+
+long long int parse_int(char *c)
+{
+	char *endptr;
+	long val;
+
+	errno = 0;    /* To distinguish success/failure after call */
+	val = strtoll(c, &endptr, 10);
+	if ((errno == ERANGE && (val == LLONG_MAX || val == LLONG_MIN))
+			|| (errno != 0 && val == 0)) {
+		perrordie("strtol");
+	}
+
+	if (endptr == c) {
+		die("No digits were found");
+	}
+
+	return val;
+}
+
+int btd_cmd(FILE *fd, char *cmd)
+{
+	btd_log(0, "Sending command: %s\n", cmd);
+	fwrite(cmd, strlen(cmd), 1, fd);
+	fputc('\n', fd);
+
+	char *ret = read_line(fd);
+	int t = parse_int(ret);
+	btd_log(0, "Got return code: %lli\n", t);
+
+	free(ret);
+	return t;
+}
+
+char *btd_bye(FILE *fd)
+{
+	btd_cmd(fd, "BYE");
+	char *response = read_line(fd);
+	btd_log(0, "Bye'd with: %s\n", response);
+	return response;
 }
 
 //Connection
@@ -340,6 +397,13 @@ void safe_fputs(FILE *f, char *m)
 {
 	if (fputs(m, f) < 0)
 		perrordie("fputs");
+}
+
+void safe_fgets(int size, char *m, FILE *fd)
+{
+	if (fgets(m, size, fd) == NULL){
+		die("Early EOF");
+	}
 }
 
 void safe_fprintf(FILE *f, char *fmt, ...)

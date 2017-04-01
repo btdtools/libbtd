@@ -8,6 +8,7 @@
 
 //Commands
 FILE *btd_connect(struct addrinfo *ai);
+char *btd_bye(FILE *fd);
 
 //Connection
 struct addrinfo *btd_get_addrinfo(char *address);
@@ -30,6 +31,7 @@ void safe_fclose(FILE *f);
 char *safe_strcat(int count, ...);
 char *safe_strdup(const char *s);
 void safe_fputs(FILE *f, char *m);
+void safe_fgets(int size, char *m, FILE *fd);
 void safe_fprintf(FILE *f, char *m, ...);
 bool path_exists(const char *path);
 char *resolve_tilde(const char *path);
