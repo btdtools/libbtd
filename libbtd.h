@@ -11,6 +11,10 @@ struct addrinfo *btd_get_addrinfo(char *address);
 void btd_free_addrinfo(struct addrinfo *ai);
 char *pprint_address(struct addrinfo *ai);
 
+//Paths
+char *btd_get_config_path();
+char *btd_get_data_path();
+
 //Misc
 void perrordie(char *prg);
 void die(char *msg, ...);
