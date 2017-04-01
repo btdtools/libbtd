@@ -26,6 +26,7 @@ char *read_line(FILE *fd)
 		safe_realloc(fd, bufsize*=2);
 		safe_fgets(bufsize-read, buf, fd);
 	}
+	buf[strlen(buf)-1] = '\0';
 	return buf;
 }
 
