@@ -147,7 +147,7 @@ static char *safe_getenv(char *env, char *def)
 	return safe_strdup(def);
 }
 
-char *get_config_path()
+char *btd_get_config_path()
 {
 	char *cf;
 
@@ -179,7 +179,7 @@ char *get_config_path()
 	return cf;
 }
 
-char *get_data_path(){
+char *btd_get_data_path(){
 	char *df, *home = safe_getenv("XDG_DATA_HOME", "~/.local/share");
 
 	/* Check user data dir */
