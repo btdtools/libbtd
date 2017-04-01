@@ -14,6 +14,8 @@
 #define BTD_MAX_LOG 2
 #define BTD_MIN_LOG 0
 
+char *version = "";
+
 //Commands
 char *read_line(FILE *fd)
 {
@@ -54,6 +56,7 @@ FILE *btd_connect(struct addrinfo *ai)
 					perror("fdopen");
 				}
 				setbuf(ret, NULL);
+				version = read_line(ret);
 				return ret;
 			}
 		}
