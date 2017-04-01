@@ -13,9 +13,10 @@
 #define BTD_MIN_LOG 0
 
 //Commands
-int btd_connect(struct addrinfo *ai)
+FILE *btd_connect(struct addrinfo *ai)
 {
 	int socket_fd;
+	FILE *ret;
 	btd_log(2, "Registering socket\n");
 	for (struct addrinfo *r = ai; r != NULL; r=r->ai_next){
 		char *t = pprint_address(r);
@@ -32,12 +33,16 @@ int btd_connect(struct addrinfo *ai)
 				perror("connect");
 			} else {
 				btd_log(2, "Connected to socket\n");
-				return socket_fd;
+				if((ret = fdopen(socket_fd, "w+")) == NULL){
+					perror("fdopen");
+				}
+				setbuf(ret, NULL);
+				return ret;
 			}
 		}
 	}
 	btd_log(0, "Couldn't connect to any socket...\n");
-	return -1;
+	return NULL;
 }
 
 //Connection

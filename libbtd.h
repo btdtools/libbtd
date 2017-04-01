@@ -7,7 +7,7 @@
 #include <stdbool.h>
 
 //Commands
-int btd_connect(struct addrinfo *ai);
+FILE *btd_connect(struct addrinfo *ai);
 
 //Connection
 struct addrinfo *btd_get_addrinfo(char *address);
