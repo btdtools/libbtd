@@ -12,9 +12,9 @@
 #define BTD_MAX_LOG 2
 #define BTD_MIN_LOG 0
 
-void create_unixsocket(char *path, struct addrinfo **socket)
+struct addrinfo *create_unixsocket(char *path)
 {
-	struct addrinfo *sock = *socket;
+	struct addrinfo *sock;
 
 	if (strlen(path) > 108){
 		btd_log(0, "Path is too long(%lu), UNIX socket can be 108 max\n",
@@ -39,6 +39,7 @@ void create_unixsocket(char *path, struct addrinfo **socket)
 	sock->ai_addrlen = sizeof(struct sockaddr_un);
 
 	free(sa);
+	return sock;
 }
 
 struct addrinfo *btd_get_addrinfo(char *address)
@@ -75,12 +76,12 @@ struct addrinfo *btd_get_addrinfo(char *address)
 	btd_log(2, "Address without port: %s\n", address);
 	if (portindex == -1){
 		btd_log(2, "no port found so treating it as a unix socket\n");
-		create_unixsocket(address, &sock);
+		sock = create_unixsocket(address);
 	} else if((s = getaddrinfo(address, address+portindex, &hints, &sock)) != 0) {
 		btd_log(2, "getaddrinfo returned %s, treating as unix socket\n",
 				gai_strerror(s));
 		address[portindex-1] = ':';
-		create_unixsocket(address, &sock);
+		sock = create_unixsocket(address);
 	} else {
 		btd_log(2, "Succesfully parsed ipv4 or ipv6 addresses\n");
 	}
